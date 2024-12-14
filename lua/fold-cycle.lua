@@ -147,7 +147,11 @@ function M.open(opts)
 
   -- if current line is unfolded but branch can still be further unfolded
   if min_fold_level then
-    open_branch_by_level(fold_start, fold_end, min_fold_level)
+    if fold_level > 0 then
+      open_branch()
+    else
+      open_all_folds()
+    end
   elseif cycle then
     if fold_level > 0 then
       -- if branch is completely unfolded
@@ -192,7 +196,9 @@ function M.close(opts)
       -- if there are no open folds in branch with a fold level different from current line
       vim.cmd.foldclose()
     else
-      close_branch_by_level(fold_start, fold_end, max_fold_level)
+      for i = max_fold_level, fold_level + 1, -1 do
+        close_branch_by_level(fold_start, fold_end, i)
+      end
     end
   elseif cycle then
     open_all_folds()
