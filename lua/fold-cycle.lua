@@ -158,7 +158,11 @@ function M.open(opts)
 
   -- If current line is unfolded but nested folds can still be further unfolded
   if min_fold_level then
-    open_folds_by_level(fold_start, fold_end, min_fold_level)
+    if fold_level > 0 then
+      open_folds()
+    else
+      open_all_folds()
+    end
   elseif cycle then
     if fold_level > 0 then
       -- If there are no nested closed folds
@@ -202,7 +206,9 @@ function M.close(opts)
       -- If there are no open child folds with a level different from current line
       vim.cmd.foldclose()
     else
-      close_folds_by_level(fold_start, fold_end, max_fold_level)
+      for i = max_fold_level, fold_level + 1, -1 do
+        close_folds_by_level(fold_start, fold_end, i)
+      end
     end
   elseif cycle then
     open_all_folds()
