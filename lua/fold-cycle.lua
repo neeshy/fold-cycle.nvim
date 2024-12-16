@@ -206,9 +206,7 @@ function M.close(opts)
       -- If there are no open child folds with a level different from current line
       vim.cmd.foldclose()
     else
-      for i = max_fold_level, fold_level + 1, -1 do
-        close_folds_by_level(fold_start, fold_end, i)
-      end
+      close_folds_by_level(fold_start, fold_end, fold_level + 1)
     end
   elseif cycle then
     open_all_folds()
