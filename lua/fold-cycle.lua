@@ -202,9 +202,7 @@ function M.close(opts)
       -- if there are no open folds in branch with a fold level different from current line
       vim.cmd.foldclose()
     else
-      for i = max_fold_level, fold_level + 1, -1 do
-        close_branch_by_level(fold_start, fold_end, i)
-      end
+      close_branch_by_level(fold_start, fold_end, fold_level + 1)
     end
   elseif cycle then
     open_all_folds()
