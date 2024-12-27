@@ -14,10 +14,8 @@ With lazy:
 {
   'neeshy/fold-cycle.nvim',
   keys = {
-    { '<Tab>', function() require('fold-cycle').open() end, desc = 'Cycle folds forward' },
-    { '<S-Tab>', function() require('fold-cycle').close() end, desc = 'Cycle folds backward' },
-    { '<CR>', function() require('fold-cycle').open { cycle = false } end, desc = 'Open folds recursively' },
-    { '<BS>', function() require('fold-cycle').close { cycle = false } end, desc = 'Close folds recursively' },
+    { '<CR>', function() require('fold-cycle').open() end, desc = 'Open folds recursively' },
+    { '<BS>', function() require('fold-cycle').close() end, desc = 'Close folds recursively' },
     { 'zO', function() require('fold-cycle').open_all() end, desc = 'Open all folds under cursor recursively' },
     { 'zC', function() require('fold-cycle').close_all() end, desc = 'Close all folds under cursor recursively' },
     { 'zA', function() require('fold-cycle').toggle_all() end, desc = 'Toggle all folds under cursor recursively' },
