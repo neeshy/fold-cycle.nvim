@@ -124,9 +124,7 @@ function M.toggle_all()
 end
 
 -- open one level of folds in branch
-function M.open(opts)
-  local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
-
+function M.open()
   -- if current line is folded
   if is_fold_closed() then
     vim.cmd.foldopen()
@@ -158,26 +156,11 @@ function M.open(opts)
     else
       open_all_folds()
     end
-  elseif cycle then
-    if fold_level > 0 then
-      -- if branch is completely unfolded
-      close_branch()
-    else
-      close_all_folds()
-    end
   end
 end
 
 -- close one level of folds in branch
-function M.close(opts)
-  local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
-
-  -- if current line is folded
-  if is_fold_closed() and cycle then
-    open_branch()
-    return
-  end
-
+function M.close()
   local fold_start, fold_end, max_fold_level
   local fold_level = vim.fn.foldlevel('.')
   if fold_level > 0 then
@@ -204,8 +187,6 @@ function M.close(opts)
     else
       close_branch_by_level(fold_start, fold_end, fold_level + 1)
     end
-  elseif cycle then
-    open_all_folds()
   end
 end
 
