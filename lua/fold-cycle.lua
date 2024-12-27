@@ -55,8 +55,7 @@ local function close_branch_by_level(fold_start, fold_end, level)
       if is_fold_opened(line) then
         vim.cmd.foldclose { range = { line } }
       end
-      local next_fold_end = vim.fn.foldclosedend(line)
-      line = next_fold_end + 1
+      line = vim.fn.foldclosedend(line) + 1
     else
       line = line + 1
     end
