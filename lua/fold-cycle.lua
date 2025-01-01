@@ -12,15 +12,20 @@ end
 
 -- find last/first line of the current fold branch
 local function find_fold()
-  local view = vim.fn.winsaveview()
+  local fold_start = vim.fn.foldclosed('.')
+  local fold_end
 
-  -- is the line is folded? if not, a flag is set to try to close and later reopen it
-  local fold_is_open = is_fold_opened()
-  if fold_is_open then vim.cmd.foldclose() end
-  local fold_start, fold_end = vim.fn.foldclosed('.'), vim.fn.foldclosedend('.')
-  if fold_is_open then vim.cmd.foldopen() end
-
-  vim.fn.winrestview(view)
+  -- is the line folded? if not, close it and later reopen it
+  if fold_start == -1 then
+    local view = vim.fn.winsaveview()
+    vim.cmd.foldclose()
+    fold_start = vim.fn.foldclosed('.')
+    fold_end = vim.fn.foldclosedend('.')
+    vim.cmd.foldopen()
+    vim.fn.winrestview(view)
+  else
+    fold_end = vim.fn.foldclosedend('.')
+  end
 
   return fold_start, fold_end
 end
