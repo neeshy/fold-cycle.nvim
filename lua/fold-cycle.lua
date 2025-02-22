@@ -10,12 +10,12 @@ local function is_fold_closed(line)
   return vim.fn.foldclosed(line or '.') ~= -1
 end
 
--- find last/first line of the current fold branch
+-- Find the range of the current fold
 local function find_fold()
   local fold_start = vim.fn.foldclosed('.')
   local fold_end
 
-  -- is the line folded? if not, close it and later reopen it
+  -- Is the line folded? If not, close it and later reopen it
   if fold_start == -1 then
     local view = vim.fn.winsaveview()
     vim.cmd.foldclose()
@@ -38,8 +38,8 @@ local function close_all_folds()
   vim.cmd('silent! %foldclose!')
 end
 
--- open all folds of a specified fold level in the branch
-local function open_branch_by_level(fold_start, fold_end, level)
+-- Open all child folds of a specified level
+local function open_folds_by_level(fold_start, fold_end, level)
   local line = fold_start
   while line < fold_end do
     if vim.fn.foldlevel(line) <= level and is_fold_closed(line) then
@@ -52,8 +52,8 @@ local function open_branch_by_level(fold_start, fold_end, level)
   end
 end
 
--- close all folds of a specified fold level in the branch
-local function close_branch_by_level(fold_start, fold_end, level)
+-- Close all child folds of a specified level
+local function close_folds_by_level(fold_start, fold_end, level)
   local line = fold_start
   while line < fold_end do
     if is_fold_opened(line) then
@@ -69,14 +69,14 @@ local function close_branch_by_level(fold_start, fold_end, level)
   end
 end
 
--- recursively open all folds in branch
-local function open_branch()
+-- Recursively open all folds under cursor
+local function open_folds()
   local fold_start, fold_end = find_fold()
   vim.cmd.foldopen { range = { fold_start, fold_end }, bang = true }
 end
 
--- recursively close all folds in branch
-local function close_branch()
+-- Recursively close all folds under cursor
+local function close_folds()
   local fold_level = vim.fn.foldlevel('.')
   local fold_start, fold_end = find_fold()
 
@@ -103,40 +103,40 @@ local function close_branch()
   vim.cmd.foldclose { range = { fold_start } }
 end
 
--- open all folds in branch
+-- Open all folds
 function M.open_all()
   if vim.fn.foldlevel('.') > 0 then
-    open_branch()
+    open_folds()
   else
     open_all_folds()
   end
 end
 
--- close all folds in branch
+-- Close all folds
 function M.close_all()
   if vim.fn.foldlevel('.') > 0 then
-    close_branch()
+    close_folds()
   else
     close_all_folds()
   end
 end
 
--- open/close all folds in branch
+-- Open/close all folds
 function M.toggle_all()
   if vim.fn.foldlevel('.') > 0 then
     if is_fold_closed() then
-      open_branch()
+      open_folds()
     else
-      close_branch()
+      close_folds()
     end
   end
 end
 
--- open one level of folds in branch
+-- Open one level of folds
 function M.open(opts)
   local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
 
-  -- if current line is folded
+  -- If current line is folded
   if is_fold_closed() then
     vim.cmd.foldopen()
     return
@@ -160,26 +160,26 @@ function M.open(opts)
     end
   end
 
-  -- if current line is unfolded but branch can still be further unfolded
+  -- If current line is unfolded but nested folds can still be further unfolded
   if min_fold_level then
-    open_branch_by_level(fold_start, fold_end, min_fold_level)
+    open_folds_by_level(fold_start, fold_end, min_fold_level)
   elseif cycle then
     if fold_level > 0 then
-      -- if branch is completely unfolded
-      close_branch()
+      -- If there are no nested closed folds
+      close_folds()
     else
       close_all_folds()
     end
   end
 end
 
--- close one level of folds in branch
+-- Close one level of folds
 function M.close(opts)
   local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
 
-  -- if current line is folded
+  -- If current line is folded
   if is_fold_closed() and cycle then
-    open_branch()
+    open_folds()
     return
   end
 
@@ -204,10 +204,10 @@ function M.close(opts)
 
   if max_fold_level and max_fold_level > 0 then
     if max_fold_level == fold_level then
-      -- if there are no open folds in branch with a fold level different from current line
+      -- If there are no open child folds with a level different from current line
       vim.cmd.foldclose()
     else
-      close_branch_by_level(fold_start, fold_end, max_fold_level)
+      close_folds_by_level(fold_start, fold_end, max_fold_level)
     end
   elseif cycle then
     open_all_folds()
