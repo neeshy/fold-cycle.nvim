@@ -69,8 +69,7 @@ end
 
 -- Recursively open all folds under cursor
 local function open_folds()
-  local fold_start, fold_end = find_fold()
-  vim.cmd.foldopen { range = { fold_start, fold_end }, bang = true }
+  vim.cmd.foldopen { range = { find_fold() }, bang = true }
 end
 
 -- Recursively close all folds under cursor
