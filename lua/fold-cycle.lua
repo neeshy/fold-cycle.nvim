@@ -77,21 +77,30 @@ end
 
 -- recursively close all folds in branch
 local function close_branch()
-  local min_fold_level = vim.fn.foldlevel('.')
-  local max_fold_level = min_fold_level
+  local fold_level = vim.fn.foldlevel('.')
   local fold_start, fold_end = find_fold()
-  for line = fold_start, fold_end do
-    if is_fold_opened(line) then
+
+  -- Close all child folds recursively. The deepest folds must be closed first.
+  -- This is a workaround for the behavior of `foldclose!` which closes parent folds as well
+  local stack = {}
+  local line = fold_start + 1
+  while line <= fold_end do
+    if is_fold_closed(line) then
+      line = vim.fn.foldclosedend(line) + 1
+    else
       local level = vim.fn.foldlevel(line)
-      if level > max_fold_level then
-        max_fold_level = level
+      if level > fold_level then
+        fold_level = level
+        stack[#stack + 1] = line
+      elseif level < fold_level then
+        fold_level = level
+        vim.cmd.foldclose { range = { table.remove(stack), line - 1 } }
       end
+      line = line + 1
     end
   end
 
-  for level = max_fold_level, min_fold_level, -1 do
-    close_branch_by_level(fold_start, fold_end, level)
-  end
+  vim.cmd.foldclose { range = { fold_start } }
 end
 
 -- open all folds in branch
