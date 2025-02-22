@@ -56,15 +56,13 @@ end
 local function close_folds_by_level(fold_start, fold_end, level)
   local line = fold_start
   while line < fold_end do
-    if is_fold_opened(line) then
-      if vim.fn.foldlevel(line) >= level then
-        vim.cmd.foldclose { range = { line } }
-        line = vim.fn.foldclosedend(line) + 1
-      else
-        line = line + 1
-      end
-    else
+    if is_fold_closed(line) then
       line = vim.fn.foldclosedend(line) + 1
+    elseif vim.fn.foldlevel(line) >= level then
+      vim.cmd.foldclose { range = { line } }
+      line = vim.fn.foldclosedend(line) + 1
+    else
+      line = line + 1
     end
   end
 end
