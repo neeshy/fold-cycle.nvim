@@ -134,7 +134,6 @@ end
 function M.open(opts)
   local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
 
-  -- If current line is folded
   if is_fold_closed() then
     vim.cmd.foldopen()
     return
@@ -175,7 +174,6 @@ end
 function M.close(opts)
   local cycle = type(opts) ~= 'table' or opts.cycle == nil or opts.cycle
 
-  -- If current line is folded
   if is_fold_closed() and cycle then
     open_folds()
     return
