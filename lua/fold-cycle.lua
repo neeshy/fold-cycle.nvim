@@ -103,28 +103,25 @@ end
 
 -- Close one level of folds
 function M.close()
-  local fold_start, fold_end
   local fold_level = vim.fn.foldlevel('.')
-  if fold_level > 0 then
-    fold_start, fold_end = find_fold()
-  else
-    fold_start = 1
-    fold_end = vim.fn.line('$')
+  if fold_level == 0 then
+    vim.cmd.foldclose { range = { 1, vim.fn.line('$') } }
+    return
   end
 
+  local fold_start, fold_end = find_fold()
+
   local close = true
-  local line = fold_start
+  local line = fold_start + 1
   while line < fold_end do
-    if is_fold_opened(line) then
-      if vim.fn.foldlevel(line) == fold_level + 1 then
-        close = false
-        vim.cmd.foldclose { range = { line } }
-        line = vim.fn.foldclosedend(line) + 1
-      else
-        line = line + 1
-      end
-    else
+    if is_fold_closed(line) then
       line = vim.fn.foldclosedend(line) + 1
+    elseif vim.fn.foldlevel(line) == fold_level + 1 then
+      vim.cmd.foldclose { range = { line } }
+      close = false
+      line = vim.fn.foldclosedend(line) + 1
+    else
+      line = line + 1
     end
   end
 
